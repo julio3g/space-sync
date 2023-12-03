@@ -1,4 +1,5 @@
 import { env } from '@/env'
+import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { randomUUID } from 'crypto'
 import nextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -56,6 +57,7 @@ const handler = nextAuth({
     signIn: '/auth/sign-in',
     error: '/auth/error',
   },
+  adapter: PrismaAdapter(),
 })
 
 export { handler as GET, handler as POST }
