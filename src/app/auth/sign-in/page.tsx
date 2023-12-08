@@ -22,27 +22,6 @@ export default function SignInPage() {
         <div>
           {env.VERCEL_ENV === 'preview' ? <SignInForm /> : <SignInButton />}
         </div>
-        {/* <p className="px-8 text-center text-sm leading-relaxed text-muted-foreground">
-          By clicking continue, you agree to our{' '}
-          <a
-            href="https://www.rocketseat.com.br/terms"
-            className="underline underline-offset-4 hover:text-primary"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a
-            href="https://www.rocketseat.com.br/privacy"
-            className="underline underline-offset-4 hover:text-primary"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Privacy Policy
-          </a>
-          .
-        </p> */}
       </div>
     </div>
   )
