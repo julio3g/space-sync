@@ -1,7 +1,9 @@
 import { env } from '@/env'
+import { prisma } from '@/lib/prisma'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { randomUUID } from 'crypto'
 import nextAuth from 'next-auth'
+import { Adapter } from 'next-auth/adapters'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 
@@ -38,8 +40,9 @@ const credentialsProvider = CredentialsProvider({
 })
 
 const handler = nextAuth({
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
-    env.VERCEL_ENV === 'preview'
+    process.env.VERCEL_ENV === 'preview'
       ? credentialsProvider
       : GoogleProvider({
           clientId: env.GOOGLE_CLIENT_ID,
@@ -56,8 +59,8 @@ const handler = nextAuth({
   pages: {
     signIn: '/auth/sign-in',
     error: '/auth/error',
+    newUser: '/create-team',
   },
-  adapter: PrismaAdapter(),
 })
 
 export { handler as GET, handler as POST }
