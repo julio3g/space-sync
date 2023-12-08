@@ -11,6 +11,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
   },
+  client: {
+    NEXT_PUBLIC_SUPABASE_URL: z.string().min(1),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  },
   shared: {
     NODE_ENV: nodeEnv,
     VERCEL_ENV: z
@@ -18,6 +22,8 @@ export const env = createEnv({
       .default('development'),
   },
   experimental__runtimeEnv: {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NODE_ENV,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NODE_ENV,
     NODE_ENV: process.env.NODE_ENV,
     VERCEL_ENV: process.env.VERCEL_ENV,
   },
