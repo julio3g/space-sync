@@ -39,7 +39,7 @@ const credentialsProvider = CredentialsProvider({
   },
 })
 
-const handler = nextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     process.env.VERCEL_ENV === 'preview'
@@ -61,6 +61,7 @@ const handler = nextAuth({
     error: '/auth/error',
     newUser: '/create-team',
   },
-})
+}
+const handler = nextAuth(authOptions)
 
 export { handler as GET, handler as POST }
