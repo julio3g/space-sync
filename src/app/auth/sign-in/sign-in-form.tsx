@@ -35,7 +35,7 @@ export function SignInForm() {
     await signIn('credentials', {
       email,
       password,
-      callbackUrl: '/',
+      callbackUrl: '/create-team',
     })
   }
 
