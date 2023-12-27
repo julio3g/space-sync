@@ -1,7 +1,8 @@
-import { getServerSession } from 'next-auth'
-import { authOptions } from '../api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth'
 import { ReactNode } from 'react'
+
+import { authOptions } from '@/lib/auth'
 
 export default async function PrivatePageLayout({
   children,
@@ -12,9 +13,7 @@ export default async function PrivatePageLayout({
 
   const unauthenticated = !session?.user
 
-  if (unauthenticated) {
-    return redirect('/auth/sign-in')
-  }
+  if (unauthenticated) return redirect('/auth/sign-in')
 
   return <>{children}</>
 }

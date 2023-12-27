@@ -1,9 +1,7 @@
 import { Orbit } from 'lucide-react'
 import { Metadata } from 'next'
 
-import { env } from '@/env'
 import { SignInButton } from './sign-in-button'
-import { SignInForm } from './sign-in-form'
 
 export const metadata: Metadata = {
   title: 'Sign In',
@@ -20,7 +18,8 @@ export default function SignInPage() {
           </h1>
         </div>
         <div>
-          {env.VERCEL_ENV === 'preview' ? <SignInForm /> : <SignInButton />}
+          {/* {env.VERCEL_ENV === 'preview' ? <SignInForm /> : <SignInButton />} */}
+          <SignInButton />
         </div>
       </div>
     </div>

@@ -1,10 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { signOut, useSession } from 'next-auth/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+
+import { Button } from '@/components/ui/button'
+import { ColorPickerInput } from '@/components/ui/color-picker'
 import {
   Form,
   FormControl,
@@ -15,87 +18,122 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { InputWithFix } from '@/components/ui/input-fix'
+import { env } from '@/env'
+import { api } from '@/lib/axios'
+import { COLORS } from '@/lib/colors'
+
+import { ButtonSignOut } from './components/button-sign-out'
+
+const colorValidator = z.union([
+  z.enum(COLORS as [string, ...string[]]),
+  z
+    .string()
+    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Cor hexadecimal invalida'),
+])
 
 const createTeamFormSchema = z.object({
-  username: z
+  teamName: z
     .string()
-    .nonempty({ message: 'O nome de usuário é obrigatório.' })
-    .regex(/^[a-z]+(-[a-z]+)*$/)
-    .min(1, {
-      message:
-        'O nome do time na url deve conter apenas letras minúsculas e hifens.',
+    .nonempty({ message: 'O nome do time é obrigatório.' })
+    .min(4, {
+      message: 'O nome do time deve conter no mínimo 4 letras.',
+    }),
+  teamNameUrl: z
+    .string()
+    .nonempty({ message: 'O nome de usuário do time é obrigatório.' })
+    .regex(
+      /^[a-z]+(-[a-z]+)*$/,
+      'O nome do time na url deve conter apenas letras minúsculas e hifens.',
+    )
+    .min(4, {
+      message: 'O nome do time na url deve conter no mínimo 4 letras.',
     })
     .toLowerCase(),
-  teamName: z.string().min(4, {
-    message: 'O nome do time deve conter no mínimo 4 letras.',
-  }),
+  color: colorValidator,
 })
 
 type CreateTeamFormData = z.infer<typeof createTeamFormSchema>
 
-export default function createTeam() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const form = useForm<CreateTeamFormData>({
+export default function CreateTeam() {
+  const router = useRouter()
+  const formCreateTeam = useForm<CreateTeamFormData>({
     resolver: zodResolver(createTeamFormSchema),
     defaultValues: {
-      username: '',
+      teamName: 'Exemplo',
+      teamNameUrl: '',
+      color: '#09090b',
     },
   })
 
-  const { status, data } = useSession()
+  const watchField = formCreateTeam.watch(['color', 'teamName'])
 
-  function onSubmit(values: CreateTeamFormData) {
-    console.log(values)
+  const {
+    formState: { isSubmitting },
+  } = formCreateTeam
+
+  async function onSubmit({
+    teamName,
+    teamNameUrl,
+    color,
+  }: CreateTeamFormData) {
+    await api.post('/team/create-team', {
+      name: teamName,
+      teamNameUrl,
+      color,
+    })
+
+    router.push('/invite-new-participant')
   }
 
-  console.log(status, data)
-
   return (
-    <main className="h-screen flex flex-col items-center justify-center">
-      <div>
-        <Button
-          className="absolute left-6 top-6"
-          variant="ghost"
-          onClick={() => signOut()}
-        >
-          Sair
-        </Button>
-      </div>
-      <div className="max-w-lg w-full gap-8 flex flex-col">
-        <div className=" text-center">
-          <h1 className="text-3xl font-bold">Criar novo time</h1>
-          <p className="text-sm mt-6 text-muted-foreground">
+    <main className="flex h-screen flex-col items-center justify-center">
+      <ButtonSignOut />
+
+      <div className="flex w-full max-w-lg flex-col gap-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Criar novo time</h1>
+          <p className="mt-6 text-sm text-muted-foreground">
             Monte uma equipe para integrar e gerenciar um sistema automatizado
             de envio de mensagens no <b>WhatsApp</b>.
           </p>
         </div>
-        <Form {...form}>
+        <Form {...formCreateTeam}>
           <form
             id="create-team"
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-5 bg-card text-card-foreground shadow-sm border p-4 rounded-lg"
+            onSubmit={formCreateTeam.handleSubmit(onSubmit)}
+            className="space-y-5 rounded-lg border bg-card p-4 text-card-foreground shadow-sm"
           >
             <FormField
-              control={form.control}
-              name="username"
+              control={formCreateTeam.control}
+              name="teamName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome do time</FormLabel>
                   <FormControl>
-                    <Input placeholder="" {...field} />
+                    <Input placeholder="Exemplo" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              control={form.control}
-              name="teamName"
+              control={formCreateTeam.control}
+              name="teamNameUrl"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nome de usuário do time</FormLabel>
                   <FormControl>
-                    <Input placeholder="exemplo-exemplo" {...field} />
+                    <InputWithFix
+                      prefix={
+                        <span className="font-normal text-slate-500">
+                          {env.NEXT_PUBLIC_VERCEL_URL}/
+                        </span>
+                      }
+                      className="font-medium"
+                      placeholder="exemplo-de-nome"
+                      {...field}
+                    />
                   </FormControl>
                   <FormDescription>
                     Este é o nome que ficará na url.
@@ -104,10 +142,40 @@ export default function createTeam() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={formCreateTeam.control}
+              name="color"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aparência</FormLabel>
+                  <FormControl>
+                    <ColorPickerInput {...field} />
+                  </FormControl>
+                  <p className="text-xs text-slate-500">
+                    <b>Cor do time: </b>
+                    <span
+                      className="font-medium"
+                      style={{ color: watchField[0] }}
+                    >
+                      {watchField[1]}
+                    </span>
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
-        <Button form="create-team" className="w-full max-w-sm flex m-auto">
-          Criar time
+        <Button
+          form="create-team"
+          className="m-auto flex w-full max-w-sm font-semibold"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            'Criar time'
+          )}
         </Button>
       </div>
     </main>

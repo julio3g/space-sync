@@ -1,19 +1,28 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { AtSign, Loader2 } from 'lucide-react'
-import { signIn } from 'next-auth/react'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { signIn, useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
 
 export function SignInButton() {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const { data, status } = useSession()
+
+  useEffect(() => {
+    if (status === 'authenticated' && data.user.teams.length > 0) {
+      const teamUrl = data.user.teams[0].teamNameUrl
+      localStorage.setItem('teamURL', teamUrl)
+      router.push(`/${teamUrl}`)
+    }
+  }, [data, status, router])
 
   async function handleSignIn() {
     setLoading(true)
-
-    await signIn('google', {
-      callbackUrl: '/create-team',
-    })
+    await signIn('google')
   }
 
   return (

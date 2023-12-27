@@ -32,7 +32,8 @@ enum Role {
 model Team {
   id          String   @id @default(uuid())
   name        String   @unique
-  description String?
+  teamNameUrl String   @unique
+  color       String
   users       User[]
   createdAt   DateTime @default(now())
 }
@@ -83,14 +84,6 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  Team          Team?     @relation(fields: [teamId], references: [id])
-  teamId        String?
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  role          Role      @default(OWNER)
+  teams         Team[]
 }

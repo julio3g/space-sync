@@ -1,12 +1,14 @@
-import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans as JakartaSans } from 'next/font/google'
-import { ReactNode } from 'react'
 import './globals.css'
+
+import type { Metadata } from 'next'
+import { Plus_Jakarta_Sans as PlusJakartaSans } from 'next/font/google'
+import { ReactNode } from 'react'
+
 import Providers from './providers'
 
-const jakartaSans = JakartaSans({
+const jakarta = PlusJakartaSans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-jakarta',
 })
 
 export const metadata: Metadata = {
@@ -23,12 +25,8 @@ export default async function RootLayout({
   children: ReactNode
 }) {
   return (
-    <html
-      className={`bg-slate-50 ${jakartaSans.variable}`}
-      lang="pt"
-      suppressHydrationWarning
-    >
-      <body className="antialiased">
+    <html className={jakarta.variable} lang="pt" suppressHydrationWarning>
+      <body className="bg-slate-50 antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
